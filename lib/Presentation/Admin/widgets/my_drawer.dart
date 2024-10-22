@@ -1,8 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vav_foods_admin_app/Constants/colors.dart';
-
+import '../../../Constants/colors.dart';
 import '../../../Routes/routes.dart';
 import 'my_text.dart';
 
@@ -118,23 +117,26 @@ class MyDrawer extends StatelessWidget {
                 ), */
               ),
             ),
-            //contact
-            /*  Padding(
+            //products
+            Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 20,
               ),
               child: ListTile(
+                onTap: () {
+                  Get.toNamed(AppRoutes.addProductsScreen);
+                },
                 titleAlignment: ListTileTitleAlignment.center,
                 title: MyText(
-                  text: "Contact",
-                  color: AppConstant.appTextColor,
+                  text: "Products",
+                  color: AppColors.background,
                 ),
                 leading: Icon(
-                  Icons.help,
-                  color: AppConstant.appTextColor,
+                  Icons.production_quantity_limits_sharp,
+                  color: AppColors.background,
                 ),
               ),
-            ), */
+            ),
             //logout
             Padding(
               padding: const EdgeInsets.symmetric(

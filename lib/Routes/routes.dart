@@ -3,6 +3,7 @@ import '../Presentation/Admin/screens/category_management/add_categories_screen.
 import '../Presentation/Admin/screens/category_management/all_categories_screen.dart';
 import '../Presentation/Admin/screens/category_management/edit_categories_screen.dart';
 import '../Presentation/Admin/screens/category_management/single_category_details_screen.dart';
+import '../Presentation/Admin/screens/product_management/add_products_screen.dart';
 import '../Presentation/Admin/screens/users_management/add_user_screen.dart';
 import '../Presentation/Admin/screens/users_management/all_users_screen.dart';
 import '../Presentation/Admin/screens/users_management/edit_user_details_screen.dart';
@@ -22,6 +23,8 @@ class AppRoutes {
       '/SingleCategoryDetailsScreen';
   static const String editCategoriesScreen = '/EditCategoriesScreen';
 
+  static const String addProductsScreen = '/AddProductsScreen';
+
   static final List<GetPage> routes = [
     GetPage(name: mainScreen, page: () => const MainScreen()),
     GetPage(name: allUsersScreen, page: () => const AllUsersScreen()),
@@ -36,5 +39,6 @@ class AppRoutes {
         name: singleCategoryDetailsScreen,
         page: () => const SingleCategoryDetailsScreen()),
     GetPage(name: editCategoriesScreen, page: () => EditCategoryScreen()),
+    GetPage(name: addProductsScreen, page: () => const AddProductsScreen()),
   ];
 }

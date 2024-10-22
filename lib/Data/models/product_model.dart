@@ -1,65 +1,67 @@
-// ignore_for_file: file_names
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProductModel {
-  final String productId;
-  final String categoryId;
-  final String productName;
-  final String categoryName;
-  final String salePrice;
-  final String fullPrice;
-  final List productImages;
-  final String deliveryTime;
-  final bool isSale;
-  final String productDescription;
-  final dynamic createdAt;
-  final dynamic updatedAt;
+  String productId;
+  String productName;
+  String productDescription;
+  double productPrice;
+  String categoryId;
+  String categoryName;
+  String coverImg;
+  List<String> urlImages;
+  int stockQuantity;
+  int stockThreshold;
+  Timestamp createdAt;
+  Timestamp updatedAt;
 
   ProductModel({
     required this.productId,
-    required this.categoryId,
     required this.productName,
-    required this.categoryName,
-    required this.salePrice,
-    required this.fullPrice,
-    required this.productImages,
-    required this.deliveryTime,
-    required this.isSale,
     required this.productDescription,
+    required this.productPrice,
+    required this.categoryId,
+    required this.categoryName,
+    required this.coverImg,
+    required this.urlImages,
+    required this.stockQuantity,
+    required this.stockThreshold,
     required this.createdAt,
     required this.updatedAt,
   });
 
+  // Convert a ProductModel into a Map for Firestore
   Map<String, dynamic> toMap() {
     return {
-      'productId': productId,
-      'categoryId': categoryId,
-      'productName': productName,
-      'categoryName': categoryName,
-      'salePrice': salePrice,
-      'fullPrice': fullPrice,
-      'productImages': productImages,
-      'deliveryTime': deliveryTime,
-      'isSale': isSale,
+      'product_id': productId,
+      'product_name': productName,
       'productDescription': productDescription,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
+      'productPrice': productPrice,
+      'categoryId': categoryId,
+      'category_name': categoryName,
+      'cover_img': coverImg,
+      'url_images': urlImages,
+      'stock_quantity': stockQuantity,
+      'stock_threshold': stockThreshold,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
     };
   }
 
-  factory ProductModel.fromMap(Map<String, dynamic> json) {
+  // Create a ProductModel from a Map (e.g., from Firestore)
+  factory ProductModel.fromMap(Map<String, dynamic> map) {
     return ProductModel(
-      productId: json['productId'],
-      categoryId: json['categoryId'],
-      productName: json['productName'],
-      categoryName: json['categoryName'],
-      salePrice: json['salePrice'],
-      fullPrice: json['fullPrice'],
-      productImages: json['productImages'] ?? '',
-      deliveryTime: json['deliveryTime'],
-      isSale: json['isSale'],
-      productDescription: json['productDescription'],
-      createdAt: json['createdAt'],
-      updatedAt: json['updatedAt'],
+      productId: map['product_id'],
+      productName: map['product_name'] ?? '',
+      productDescription: map['productDescription'] ?? '',
+      productPrice: (map['productPrice'] ?? 0).toDouble(),
+      categoryId: map['categoryId'] ?? '',
+      categoryName: map['category_name'] ?? '',
+      coverImg: map['cover_img'] ?? '',
+      urlImages: List<String>.from(map['url_images'] ?? []),
+      stockQuantity: map['stock_quantity'] ?? 0,
+      stockThreshold: map['stock_threshold'] ?? 0,
+      createdAt: map['created_at'] ?? Timestamp.now(),
+      updatedAt: map['updated_at'] ?? Timestamp.now(),
     );
   }
 }
