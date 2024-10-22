@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:vav_foods_admin_app/Data/models/product_model.dart';
-
 import '../interfaces/products_interfaces.dart';
 import '../models/category_model.dart';
 
@@ -11,48 +13,39 @@ class ProductsServices implements ProductsInterfaces {
   final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   final FirebaseStorage firebaseStorage = FirebaseStorage.instance;
 
-  // Fetch category data from Firestore using categoryId
-  Future<CategoryModel?> getCategoryById(String categoryId) async {
-    try {
-      DocumentSnapshot docSnapshot = await firebaseFirestore
-          .collection('categories')
-          .doc(categoryId)
-          .get();
+  @override
+  Future<List<CategoryModel>> fetchCategoriesFromFirebase() async {
+    List<CategoryModel> categoriesList = [];
 
-      if (docSnapshot.exists) {
-        Map<String, dynamic> categoryData =
-            docSnapshot.data() as Map<String, dynamic>;
-        return CategoryModel.fromMap(categoryData);
-      } else {
-        print("Category not found");
-        return null;
-      }
+    try {
+      QuerySnapshot snapshot =
+          await firebaseFirestore.collection('categories').get();
+      snapshot.docs.forEach((element) {
+        categoriesList
+            .add(CategoryModel.fromMap(element.data() as Map<String, dynamic>));
+      });
     } catch (e) {
-      print("Error fetching category: $e");
-      return null;
+      print("Error in fetching the categories: $e");
     }
+
+    return categoriesList;
   }
 
-  //add
   @override
   Future<List<ProductModel>> addProductsToFirebase(
     String productName,
     String productDescription,
     double productPrice,
     String categoryId,
+    String categoryName,
     String coverImg,
     List<String> urlImages,
-    int stockQuantity,
-    int stockThreshold,
+    String stockQuantity,
+    String stockThreshold,
   ) async {
     List<ProductModel> productsList = [];
+
     try {
-      // Fetch the category using categoryId
-      CategoryModel? category = await getCategoryById(categoryId);
-      if (category == null) {
-        print("Category not found, unable to add product");
-        return [];
-      }
       DocumentReference docRef = firebaseFirestore.collection('products').doc();
       final String productId = docRef.id;
 
@@ -61,8 +54,8 @@ class ProductsServices implements ProductsInterfaces {
         productName: productName,
         productDescription: productDescription,
         productPrice: productPrice,
-        categoryId: category.categoryId,
-        categoryName: category.categoryName,
+        categoryId: categoryId,
+        categoryName: categoryName,
         coverImg: coverImg,
         urlImages: urlImages,
         stockQuantity: stockQuantity,
@@ -70,15 +63,34 @@ class ProductsServices implements ProductsInterfaces {
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
       );
+
       await firebaseFirestore
           .collection('products')
           .doc(productId)
           .set(productModel.toMap());
-
       productsList.add(productModel);
     } catch (e) {
       print("Error in adding the products: $e");
     }
+
     return productsList;
+  }
+  //store
+
+  @override
+  Future<String> uploadProductImageToStorage(XFile image) async {
+    TaskSnapshot reference;
+    if (kIsWeb) {
+      final bytes = await image.readAsBytes();
+      reference = await firebaseStorage
+          .ref('product-images/${image.name + DateTime.now().toString()}')
+          .putData(bytes);
+    } else {
+      reference = await firebaseStorage
+          .ref('product-images/${image.name + DateTime.now().toString()}')
+          .putFile(File(image.path));
+    }
+
+    return await reference.ref.getDownloadURL();
   }
 }

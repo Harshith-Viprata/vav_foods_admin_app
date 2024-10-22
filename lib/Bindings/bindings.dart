@@ -6,7 +6,7 @@ import '../Data/interfaces/categories_interfaces.dart';
 import '../Data/interfaces/products_interfaces.dart';
 import '../Data/interfaces/users_interfaces.dart';
 import '../Data/repository/category_repository.dart';
-import '../Data/repository/producst_repository.dart';
+import '../Data/repository/products_repository.dart';
 import '../Data/repository/users_repository.dart';
 import '../Data/services/categories_services.dart';
 import '../Data/services/products_services.dart';
@@ -33,10 +33,10 @@ class AppBindings extends Bindings {
 
     //products
     Get.lazyPut<ProductsInterfaces>(() => ProductsServices());
-    Get.lazyPut<ProducstRepository>(
-        () => ProducstRepository(interfaces: Get.find<ProductsInterfaces>()));
+    Get.lazyPut<ProductsRepository>(
+        () => ProductsRepository(interfaces: Get.find<ProductsInterfaces>()));
 
-    Get.lazyPut<AllProductsController>(() => AllProductsController(
-        producstRepository: Get.find<ProducstRepository>()));
+    Get.lazyPut(() => AllProductsController(
+        productsRepository: Get.find<ProductsRepository>()));
   }
 }
