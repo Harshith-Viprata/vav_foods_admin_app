@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vav_foods_admin_app/Presentation/Admin/widgets/my_drawer.dart';
@@ -181,20 +184,22 @@ class _AddProductsScreenState extends State<AddProductsScreen> {
                                         await allProductsController
                                             .uploadCoverImageToStorage();
                                       } */
+                                      await allProductsController
+                                          .showImagesPickDialog();
                                     },
                                     child: MyText(text: 'Pick Cover Image'),
                                   ),
                                 ],
                               ),
                               // Show cover image preview
-                              /* allProductsController.coverImage.value != null
+                              /*    allProductsController.coverImage.value != null
                                   ? Padding(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 10.0),
                                       child: kIsWeb
                                           ? Image.memory(
                                               allProductsController
-                                                  .webCoverImageBytes!,
+                                                  .webCoverImageBytes.value!,
                                               height: 100,
                                               width: 100,
                                               fit: BoxFit.cover,
@@ -208,6 +213,55 @@ class _AddProductsScreenState extends State<AddProductsScreen> {
                                             ),
                                     )
                                   : const SizedBox.shrink(), */
+                              allProductsController.coverImage.value != null
+                                  ? Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10.0),
+                                      child: SizedBox(
+                                        height: 300,
+                                        width: 500,
+                                        child: Stack(
+                                          children: [
+                                            kIsWeb
+                                                ? Image.memory(
+                                                    allProductsController
+                                                        .webCoverImageBytes
+                                                        .value!,
+                                                    fit: BoxFit.cover,
+                                                    height: 500,
+                                                    width: 500,
+                                                  )
+                                                : Image.file(
+                                                    File(allProductsController
+                                                        .coverImage
+                                                        .value!
+                                                        .path),
+                                                    fit: BoxFit.cover,
+                                                    height: 500,
+                                                    width: 500,
+                                                  ),
+                                            Positioned(
+                                              right: 10,
+                                              top: 0,
+                                              child: InkWell(
+                                                onTap: () {
+                                                  allProductsController
+                                                      .removeSelectedCoverImage();
+                                                },
+                                                child: const CircleAvatar(
+                                                  backgroundColor: Colors.red,
+                                                  child: const Icon(
+                                                    Icons.close,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
                               const SizedBox(height: 20),
                               // URL Images Picker
                               Row(

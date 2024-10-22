@@ -73,10 +73,10 @@ class AllProductsController extends GetxController {
   }
 
   // Show image picking dialog with permissions handling for mobile
-  Future<void> showImagesPickDialog({required bool isCoverImage}) async {
+  Future<void> showImagesPickDialog(/* {required bool isCoverImage }*/) async {
     if (kIsWeb) {
       showPickDialog(
-          isCoverImage: isCoverImage); // No permissions needed on the web
+          /* isCoverImage: isCoverImage */); // No permissions needed on the web
     } else {
       PermissionStatus storageStatus;
       PermissionStatus cameraStatus;
@@ -93,7 +93,7 @@ class AllProductsController extends GetxController {
       }
 
       if (storageStatus.isGranted && cameraStatus.isGranted) {
-        showPickDialog(isCoverImage: isCoverImage);
+        showPickDialog(/* isCoverImage: isCoverImage */);
       } else if (storageStatus.isDenied || cameraStatus.isDenied) {
         Get.snackbar('Error', 'Permissions denied, open app settings.');
         openAppSettings();
@@ -101,22 +101,48 @@ class AllProductsController extends GetxController {
     }
   }
 
-  // Show dialog for choosing Camera or Gallery
-  void showPickDialog({required bool isCoverImage}) {
+  /* // Show dialog for choosing Camera or Gallery
+  void showPickDialog(/*{ required bool isCoverImage }*/) {
     Get.defaultDialog(
       title: "Choose Image",
       middleText: "Pick an image from the camera or gallery",
       actions: [
         ElevatedButton(
           onPressed: () {
-            pickImage(sourceType: "Camera", isCoverImage: isCoverImage);
+            pickImage(
+              sourceType: "Camera", /*  isCoverImage: isCoverImage */
+            );
             Get.back(); // Close the dialog after selecting Camera
           },
           child: MyText(text: 'Camera'),
         ),
         ElevatedButton(
           onPressed: () {
-            pickImage(sourceType: "Gallery", isCoverImage: isCoverImage);
+            pickImage(
+              sourceType: "Gallery", /* isCoverImage: isCoverImage */
+            );
+            Get.back(); // Close the dialog after selecting Gallery
+          },
+          child: MyText(text: 'Gallery'),
+        ),
+      ],
+    );
+  } */
+  void showPickDialog() {
+    Get.defaultDialog(
+      title: "Choose Image",
+      middleText: "Pick an image from the camera or gallery",
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            pickImage("Camera");
+            Get.back(); // Close the dialog after selecting Camera
+          },
+          child: MyText(text: 'Camera'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            pickImage("Gallery");
             Get.back(); // Close the dialog after selecting Gallery
           },
           child: MyText(text: 'Gallery'),
@@ -124,7 +150,7 @@ class AllProductsController extends GetxController {
       ],
     );
   }
-
+/* 
   // Method to pick a single or multiple images (handles web and mobile)
   Future<void> pickImage(
       {required String sourceType, required bool isCoverImage}) async {
@@ -165,6 +191,29 @@ class AllProductsController extends GetxController {
     }
   }
 
+ */
+
+  // Method to pick a single image (handles web and mobile)
+  Future<void> pickImage(String sourceType) async {
+    XFile? image;
+    if (kIsWeb) {
+      image = await imagePicker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        final bytes = await image.readAsBytes();
+        webCoverImageBytes.value = bytes;
+      }
+    } else {
+      image = await imagePicker.pickImage(
+          source:
+              sourceType == 'Camera' ? ImageSource.camera : ImageSource.gallery,
+          imageQuality: 80);
+    }
+
+    if (image != null) {
+      coverImage.value = image;
+    }
+  }
+
   // Remove the selected cover image
   void removeSelectedCoverImage() {
     coverImage.value = null;
@@ -180,7 +229,12 @@ class AllProductsController extends GetxController {
   //storage
 
   Future<void> uploadSelectedImage() async {
-    if (selectedImages.value != null) {}
+    if (selectedImages.value != null) {
+      final imageUrl = await productsRepository
+          .uploadProductsImageToStorage(coverImage.value!);
+
+      uploadedCoverImageUrl.value = imageUrl;
+    }
   }
 
   Future<void> addProductsToFirebase() async {

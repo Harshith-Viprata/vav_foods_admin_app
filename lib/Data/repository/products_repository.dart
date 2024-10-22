@@ -1,3 +1,5 @@
+import 'package:image_picker/image_picker.dart';
+
 import '../interfaces/products_interfaces.dart';
 import '../models/category_model.dart';
 import '../models/product_model.dart';
@@ -33,5 +35,9 @@ class ProductsRepository {
 
   Future<List<CategoryModel>> fetchCategoriesFromFirebase() async {
     return interfaces.fetchCategoriesFromFirebase();
+  }
+
+  Future<String> uploadProductsImageToStorage(XFile image) async {
+    return interfaces.uploadProductImageToStorage(image);
   }
 }
