@@ -23,7 +23,6 @@ class AddressModel {
     required this.updatedAt,
   });
 
-  // Convert AddressModel to map
   Map<String, dynamic> toMap() {
     return {
       'addressLine1': addressLine1,
@@ -38,7 +37,6 @@ class AddressModel {
     };
   }
 
-  // Create AddressModel from map
   factory AddressModel.fromMap(Map<String, dynamic> map) {
     return AddressModel(
       addressLine1: map['addressLine1'] ?? '',

@@ -41,7 +41,6 @@ class AllUsersController extends GetxController {
 
   Future<void> fetchUsersFromFirebase() async {
     try {
-      // isLoading.value = true;
       isLoading(true);
 
       final fetchedUsers = await usersRepository.fetchUsersFromFirebase();
@@ -60,8 +59,7 @@ class AllUsersController extends GetxController {
   Future<void> fetchUserById(String userId) async {
     try {
       isLoading(true);
-      // final user = await usersRepository.fetchsingleUserFromFirebase(userId);
-      // Fetch user data
+
       UserModel? user =
           await usersRepository.fetchsingleUserFromFirebase(userId);
       if (user != null) {

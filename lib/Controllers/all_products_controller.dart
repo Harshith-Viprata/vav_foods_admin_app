@@ -235,15 +235,12 @@ class AllProductsController extends GetxController {
       int stockThreshold =
           int.tryParse(stockThresholdController.text.trim()) ?? 0;
 
-      // Ensure selectedCategory is not null
       String categoryId = selectedCategory.value!.categoryId;
       String categoryName = selectedCategory.value!.categoryName;
 
-      // Step 1: Upload the cover image to Firebase Storage and get the download URL
       String coverImageUrl = await productsRepository
           .uploadProductsImageToStorage(coverImage.value!);
 
-      // Step 2: Upload the multiple images to Firebase Storage and get the download URLs
       List<String> urlImages = [];
       for (var image in selectedImages) {
         String imageUrl =
@@ -251,17 +248,17 @@ class AllProductsController extends GetxController {
         urlImages.add(imageUrl);
       }
 
-      // Add the product to Firebase using the repository with the updated model structure
+      // Add the product to Firebase
       await productsRepository.addProductsToFirebase(
         productName,
         productDescription,
-        productPrice, // Pass the parsed product price
-        categoryId, // Pass the selected categoryId
-        categoryName, // Pass the selected categoryName
-        coverImageUrl, // Cover image path
-        urlImages, // Multiple images as List<String>
-        stockQuantity, // Pass stockQuantity as a String
-        stockThreshold, // Pass stockThreshold as a String
+        productPrice,
+        categoryId,
+        categoryName,
+        coverImageUrl,
+        urlImages,
+        stockQuantity,
+        stockThreshold,
       );
 
       // Clear the form after submission
