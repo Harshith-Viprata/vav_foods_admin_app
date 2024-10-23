@@ -13,8 +13,8 @@ abstract class ProductsInterfaces {
     String categoryName,
     String coverImg,
     List<String> urlImages,
-    String stockQuantity,
-    String stockThreshold,
+    int stockQuantity,
+    int stockThreshold,
   );
   //store
   Future<String> uploadProductImageToStorage(XFile image);

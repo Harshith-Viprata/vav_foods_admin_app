@@ -8,9 +8,9 @@ class ProductModel {
   String categoryId;
   String categoryName;
   String coverImg;
-  List<String> urlImages; // Updated to List<String>
-  String stockQuantity; // Updated to String
-  String stockThreshold; // Updated to String
+  List<String> urlImages;
+  int stockQuantity;
+  int stockThreshold;
   Timestamp createdAt;
   Timestamp updatedAt;
 
@@ -22,49 +22,44 @@ class ProductModel {
     required this.categoryId,
     required this.categoryName,
     required this.coverImg,
-    required this.urlImages, // List<String> type for urlImages
-    required this.stockQuantity, // String type for stockQuantity
-    required this.stockThreshold, // String type for stockThreshold
+    required this.urlImages,
+    required this.stockQuantity,
+    required this.stockThreshold,
     required this.createdAt,
     required this.updatedAt,
   });
 
-  // Convert a ProductModel into a Map for Firestore
   Map<String, dynamic> toMap() {
     return {
-      'product_id': productId,
-      'product_name': productName,
+      'productId': productId,
+      'productName': productName,
       'productDescription': productDescription,
       'productPrice': productPrice,
       'categoryId': categoryId,
-      'category_name': categoryName,
-      'cover_img': coverImg,
-      'url_images': urlImages, // List<String> for Firestore
-      'stock_quantity': stockQuantity, // String for Firestore
-      'stock_threshold': stockThreshold, // String for Firestore
-      'created_at': createdAt,
-      'updated_at': updatedAt,
+      'categoryName': categoryName,
+      'coverImg': coverImg,
+      'urlImages': urlImages,
+      'stockQuantity': stockQuantity,
+      'stockThreshold': stockThreshold,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
     };
   }
 
-  // Create a ProductModel from a Map (e.g., from Firestore)
   factory ProductModel.fromMap(Map<String, dynamic> map) {
     return ProductModel(
-      productId: map['product_id'] ?? '',
-      productName: map['product_name'] ?? '',
+      productId: map['productId'] ?? '',
+      productName: map['productName'] ?? '',
       productDescription: map['productDescription'] ?? '',
       productPrice: (map['productPrice'] ?? 0).toDouble(),
       categoryId: map['categoryId'] ?? '',
-      categoryName: map['category_name'] ?? '',
-      coverImg: map['cover_img'] ?? '',
-      urlImages:
-          List<String>.from(map['url_images'] ?? []), // Cast to List<String>
-      stockQuantity:
-          map['stock_quantity']?.toString() ?? '0', // Ensure it's a String
-      stockThreshold:
-          map['stock_threshold']?.toString() ?? '0', // Ensure it's a String
-      createdAt: map['created_at'] ?? Timestamp.now(),
-      updatedAt: map['updated_at'] ?? Timestamp.now(),
+      categoryName: map['categoryName'] ?? '',
+      coverImg: map['coverImg'] ?? '',
+      urlImages: List<String>.from(map['urlImages'] ?? []),
+      stockQuantity: (map['stockQuantity'] ?? 0).toInt(),
+      stockThreshold: (map['stockThreshold'] ?? 0).toInt(),
+      createdAt: map['createdAt'] ?? Timestamp.now(),
+      updatedAt: map['updatedAt'] ?? Timestamp.now(),
     );
   }
 }

@@ -40,8 +40,8 @@ class ProductsServices implements ProductsInterfaces {
     String categoryName,
     String coverImg,
     List<String> urlImages,
-    String stockQuantity,
-    String stockThreshold,
+    int stockQuantity,
+    int stockThreshold,
   ) async {
     List<ProductModel> productsList = [];
 

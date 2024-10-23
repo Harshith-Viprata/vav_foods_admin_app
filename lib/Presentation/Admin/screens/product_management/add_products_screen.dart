@@ -168,6 +168,7 @@ class _AddProductsScreenState extends State<AddProductsScreen> {
                               const SizedBox(height: 20),
                               // Cover Image Picker
 
+                              // Cover Image Picker
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -175,44 +176,24 @@ class _AddProductsScreenState extends State<AddProductsScreen> {
                                   MyText(text: 'Select Cover Image'),
                                   ElevatedButton(
                                     onPressed: () async {
-                                      /*  await allProductsController
-                                          .pickCoverImage();
-                                      // After picking image, store the image in Firebase Storage
+                                      // Show the image picking dialog
+                                      await allProductsController
+                                          .showImagesPickDialog(
+                                              isCoverImage: true);
+                                      // After picking the image, upload it to Firebase Storage
                                       if (allProductsController
                                               .coverImage.value !=
                                           null) {
                                         await allProductsController
-                                            .uploadCoverImageToStorage();
-                                      } */
-                                      await allProductsController
-                                          .showImagesPickDialog();
+                                            .uploadedCoverImageUrl();
+                                      }
                                     },
                                     child: MyText(text: 'Pick Cover Image'),
                                   ),
                                 ],
                               ),
-                              // Show cover image preview
-                              /*    allProductsController.coverImage.value != null
-                                  ? Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10.0),
-                                      child: kIsWeb
-                                          ? Image.memory(
-                                              allProductsController
-                                                  .webCoverImageBytes.value!,
-                                              height: 100,
-                                              width: 100,
-                                              fit: BoxFit.cover,
-                                            )
-                                          : Image.file(
-                                              File(allProductsController
-                                                  .coverImage.value!.path),
-                                              height: 100,
-                                              width: 100,
-                                              fit: BoxFit.cover,
-                                            ),
-                                    )
-                                  : const SizedBox.shrink(), */
+
+// Show cover image preview
                               allProductsController.coverImage.value != null
                                   ? Padding(
                                       padding: const EdgeInsets.symmetric(
@@ -250,7 +231,7 @@ class _AddProductsScreenState extends State<AddProductsScreen> {
                                                 },
                                                 child: const CircleAvatar(
                                                   backgroundColor: Colors.red,
-                                                  child: const Icon(
+                                                  child: Icon(
                                                     Icons.close,
                                                     color: Colors.white,
                                                   ),
@@ -262,8 +243,10 @@ class _AddProductsScreenState extends State<AddProductsScreen> {
                                       ),
                                     )
                                   : const SizedBox.shrink(),
+
                               const SizedBox(height: 20),
-                              // URL Images Picker
+
+// URL Images Picker (Multiple images)
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -271,47 +254,83 @@ class _AddProductsScreenState extends State<AddProductsScreen> {
                                   MyText(text: 'Select Multiple Images'),
                                   ElevatedButton(
                                     onPressed: () async {
-                                      /*  await allProductsController.pickUrlImages(); */
+                                      // Show the image picking dialog to pick multiple images
+                                      await allProductsController
+                                          .pickMultipleImages();
+                                      // Upload selected images to Firebase Storage
+                                      if (allProductsController
+                                          .selectedImages.isNotEmpty) {
+                                        await allProductsController
+                                            .uploadSelectedImages();
+                                      }
                                     },
                                     child: MyText(text: 'Pick Images'),
                                   ),
                                 ],
                               ),
-                              // Show selected images preview
-                              /*  allProductsController.urlImages.isNotEmpty
+
+// Show selected images preview
+                              allProductsController.selectedImages.isNotEmpty
                                   ? SizedBox(
                                       height: 100,
                                       child: ListView.builder(
                                         scrollDirection: Axis.horizontal,
                                         itemCount: allProductsController
-                                            .uploadedImageUrl.length,
+                                            .webImageBytesList.length,
                                         itemBuilder: (context, index) {
                                           return Padding(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 8.0),
-                                            child: kIsWeb
-                                                ? Image.memory(
-                                                    allProductsController
-                                                        .webUrlImageBytes[index],
-                                                    width: 100,
-                                                    height: 100,
-                                                    fit: BoxFit.cover,
-                                                  )
-                                                : Image.file(
-                                                    File(allProductsController
-                                                        .uploadedImageUrl[index]
-                                                        .path),
-                                                    width: 100,
-                                                    height: 100,
-                                                    fit: BoxFit.cover,
+                                            child: Stack(
+                                              children: [
+                                                kIsWeb
+                                                    ? Image.memory(
+                                                        allProductsController
+                                                                .webImageBytesList[
+                                                            index],
+                                                        width: 100,
+                                                        height: 100,
+                                                        fit: BoxFit.cover,
+                                                      )
+                                                    : Image.file(
+                                                        File(
+                                                            allProductsController
+                                                                .selectedImages[
+                                                                    index]
+                                                                .path),
+                                                        width: 100,
+                                                        height: 100,
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                Positioned(
+                                                  right: 0,
+                                                  top: 0,
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      allProductsController
+                                                          .removeSelectedImages();
+                                                    },
+                                                    child: const CircleAvatar(
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                      child: Icon(
+                                                        Icons.close,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
                                                   ),
+                                                ),
+                                              ],
+                                            ),
                                           );
                                         },
                                       ),
                                     )
-                                  : const SizedBox.shrink(), */
+                                  : const SizedBox.shrink(),
+
                               const SizedBox(height: 20),
-                              // Add Product Button
+
+// Add Product Button
                               MyButton(
                                 onPressed: () async {
                                   if (_formKey.currentState!.validate()) {

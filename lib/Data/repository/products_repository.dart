@@ -17,8 +17,8 @@ class ProductsRepository {
     String categoryName,
     String coverImg,
     List<String> urlImages,
-    String stockQuantity,
-    String stockThreshold,
+    int stockQuantity,
+    int stockThreshold,
   ) async {
     return interfaces.addProductsToFirebase(
       productName,

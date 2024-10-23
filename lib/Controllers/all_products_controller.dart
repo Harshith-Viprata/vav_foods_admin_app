@@ -25,12 +25,11 @@ class AllProductsController extends GetxController {
   // For cover image
   Rx<XFile?> coverImage = Rx<XFile?>(null);
   Rx<Uint8List?> webCoverImageBytes = Rx<Uint8List?>(null);
-  //
   RxString uploadedCoverImageUrl = ''.obs;
+
   // For multiple selected images (urlImages)
   RxList<XFile> selectedImages = <XFile>[].obs;
-  RxList<Uint8List> webImageBytesList =
-      <Uint8List>[].obs; // For web image bytes
+  RxList<Uint8List> webImageBytesList = <Uint8List>[].obs;
   RxList<String> uploadedImageUrl = <String>[].obs;
 
   // Text Controllers
@@ -73,10 +72,9 @@ class AllProductsController extends GetxController {
   }
 
   // Show image picking dialog with permissions handling for mobile
-  Future<void> showImagesPickDialog(/* {required bool isCoverImage }*/) async {
+  Future<void> showImagesPickDialog({required bool isCoverImage}) async {
     if (kIsWeb) {
-      showPickDialog(
-          /* isCoverImage: isCoverImage */); // No permissions needed on the web
+      showPickDialog(isCoverImage: isCoverImage);
     } else {
       PermissionStatus storageStatus;
       PermissionStatus cameraStatus;
@@ -93,7 +91,7 @@ class AllProductsController extends GetxController {
       }
 
       if (storageStatus.isGranted && cameraStatus.isGranted) {
-        showPickDialog(/* isCoverImage: isCoverImage */);
+        showPickDialog(isCoverImage: isCoverImage);
       } else if (storageStatus.isDenied || cameraStatus.isDenied) {
         Get.snackbar('Error', 'Permissions denied, open app settings.');
         openAppSettings();
@@ -101,116 +99,80 @@ class AllProductsController extends GetxController {
     }
   }
 
-  /* // Show dialog for choosing Camera or Gallery
-  void showPickDialog(/*{ required bool isCoverImage }*/) {
+  // Dialog to choose between single or multiple images
+  void showPickDialog({required bool isCoverImage}) {
     Get.defaultDialog(
       title: "Choose Image",
       middleText: "Pick an image from the camera or gallery",
       actions: [
         ElevatedButton(
           onPressed: () {
-            pickImage(
-              sourceType: "Camera", /*  isCoverImage: isCoverImage */
-            );
-            Get.back(); // Close the dialog after selecting Camera
+            if (isCoverImage) {
+              pickImage("Camera", isCoverImage: isCoverImage);
+            } else {
+              pickMultipleImages();
+            }
+            Get.back();
           },
           child: MyText(text: 'Camera'),
         ),
         ElevatedButton(
           onPressed: () {
-            pickImage(
-              sourceType: "Gallery", /* isCoverImage: isCoverImage */
-            );
-            Get.back(); // Close the dialog after selecting Gallery
-          },
-          child: MyText(text: 'Gallery'),
-        ),
-      ],
-    );
-  } */
-  void showPickDialog() {
-    Get.defaultDialog(
-      title: "Choose Image",
-      middleText: "Pick an image from the camera or gallery",
-      actions: [
-        ElevatedButton(
-          onPressed: () {
-            pickImage("Camera");
-            Get.back(); // Close the dialog after selecting Camera
-          },
-          child: MyText(text: 'Camera'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            pickImage("Gallery");
-            Get.back(); // Close the dialog after selecting Gallery
+            if (isCoverImage) {
+              pickImage("Gallery", isCoverImage: isCoverImage);
+            } else {
+              pickMultipleImages();
+            }
+            Get.back();
           },
           child: MyText(text: 'Gallery'),
         ),
       ],
     );
   }
-/* 
-  // Method to pick a single or multiple images (handles web and mobile)
-  Future<void> pickImage(
-      {required String sourceType, required bool isCoverImage}) async {
-    if (kIsWeb) {
-      if (isCoverImage) {
-        XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
-        if (image != null) {
-          final bytes = await image.readAsBytes();
-          webCoverImageBytes.value = bytes;
-          coverImage.value = image;
-        }
-      } else {
-        final List<XFile>? images = await imagePicker.pickMultiImage();
-        if (images != null) {
-          selectedImages.value = images;
-          webImageBytesList.clear();
-          for (var img in images) {
-            webImageBytesList.add(await img.readAsBytes());
-          }
-        }
-      }
-    } else {
-      if (isCoverImage) {
-        XFile? image = await imagePicker.pickImage(
-          source:
-              sourceType == 'Camera' ? ImageSource.camera : ImageSource.gallery,
-          imageQuality: 80,
-        );
-        if (image != null) {
-          coverImage.value = image;
-        }
-      } else {
-        final List<XFile>? images = await imagePicker.pickMultiImage();
-        if (images != null) {
-          selectedImages.value = images;
-        }
-      }
-    }
-  }
 
- */
-
-  // Method to pick a single image (handles web and mobile)
-  Future<void> pickImage(String sourceType) async {
+// Method to pick a single image (handles web and mobile)
+  Future<void> pickImage(String sourceType,
+      {required bool isCoverImage}) async {
     XFile? image;
     if (kIsWeb) {
       image = await imagePicker.pickImage(source: ImageSource.gallery);
       if (image != null) {
         final bytes = await image.readAsBytes();
-        webCoverImageBytes.value = bytes;
+        if (isCoverImage) {
+          webCoverImageBytes.value = bytes;
+          coverImage.value = image;
+        } else {
+          webImageBytesList.add(bytes);
+          selectedImages.add(image);
+        }
       }
     } else {
       image = await imagePicker.pickImage(
           source:
               sourceType == 'Camera' ? ImageSource.camera : ImageSource.gallery,
           imageQuality: 80);
+      if (image != null) {
+        if (isCoverImage) {
+          coverImage.value = image;
+        } else {
+          selectedImages.add(image);
+        }
+      }
     }
+  }
 
-    if (image != null) {
-      coverImage.value = image;
+  // Method to pick multiple images (web and mobile)
+  Future<void> pickMultipleImages() async {
+    List<XFile>? images = await imagePicker.pickMultiImage();
+    if (images != null && images.isNotEmpty) {
+      selectedImages.addAll(images);
+      if (kIsWeb) {
+        for (var image in images) {
+          final bytes = await image.readAsBytes();
+          webImageBytesList.add(bytes);
+        }
+      }
     }
   }
 
@@ -228,12 +190,20 @@ class AllProductsController extends GetxController {
 
   //storage
 
-  Future<void> uploadSelectedImage() async {
-    if (selectedImages.value != null) {
+  // Upload single and multiple images
+  Future<void> uploadSelectedImages() async {
+    if (coverImage.value != null) {
       final imageUrl = await productsRepository
           .uploadProductsImageToStorage(coverImage.value!);
-
       uploadedCoverImageUrl.value = imageUrl;
+    }
+
+    if (selectedImages.isNotEmpty) {
+      for (var image in selectedImages) {
+        final imageUrl =
+            await productsRepository.uploadProductsImageToStorage(image);
+        uploadedImageUrl.add(imageUrl);
+      }
     }
   }
 
@@ -244,8 +214,8 @@ class AllProductsController extends GetxController {
         productPriceController.text.isEmpty ||
         stockQuantityController.text.isEmpty ||
         stockThresholdController.text.isEmpty ||
-        /* coverImage.value == null ||
-        selectedImages.isEmpty || */
+        coverImage.value == null ||
+        selectedImages.isEmpty ||
         selectedCategory.value == null) {
       Get.snackbar('Error', 'Please fill all fields and select images');
       return;
@@ -260,19 +230,26 @@ class AllProductsController extends GetxController {
       double productPrice =
           double.tryParse(productPriceController.text.trim()) ?? 0.0;
 
-      // Convert stockQuantity and stockThreshold to String
-      String stockQuantity = stockQuantityController.text.trim();
-      String stockThreshold = stockThresholdController.text.trim();
+      int stockQuantity =
+          int.tryParse(stockQuantityController.text.trim()) ?? 0;
+      int stockThreshold =
+          int.tryParse(stockThresholdController.text.trim()) ?? 0;
 
       // Ensure selectedCategory is not null
       String categoryId = selectedCategory.value!.categoryId;
       String categoryName = selectedCategory.value!.categoryName;
 
-      // Cover image path
-      String coverImg = coverImage.value!.path ?? '';
+      // Step 1: Upload the cover image to Firebase Storage and get the download URL
+      String coverImageUrl = await productsRepository
+          .uploadProductsImageToStorage(coverImage.value!);
 
-      // Multiple image paths for urlImages
-      List<String> urlImages = selectedImages.map((img) => img.path).toList();
+      // Step 2: Upload the multiple images to Firebase Storage and get the download URLs
+      List<String> urlImages = [];
+      for (var image in selectedImages) {
+        String imageUrl =
+            await productsRepository.uploadProductsImageToStorage(image);
+        urlImages.add(imageUrl);
+      }
 
       // Add the product to Firebase using the repository with the updated model structure
       await productsRepository.addProductsToFirebase(
@@ -281,7 +258,7 @@ class AllProductsController extends GetxController {
         productPrice, // Pass the parsed product price
         categoryId, // Pass the selected categoryId
         categoryName, // Pass the selected categoryName
-        coverImg, // Cover image path
+        coverImageUrl, // Cover image path
         urlImages, // Multiple images as List<String>
         stockQuantity, // Pass stockQuantity as a String
         stockThreshold, // Pass stockThreshold as a String
